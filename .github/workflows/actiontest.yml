@@ -28,8 +28,8 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git fetch origin main
-          git checkout -b ${{ env.branch-name }} origin/main
+          git fetch origin alignment
+          git checkout -b ${{ env.branch-name }} origin/alignment
           git push origin ${{ env.branch-name }}
 
       - name: Comment on issue with branch name and link
