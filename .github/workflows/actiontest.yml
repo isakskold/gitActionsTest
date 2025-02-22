@@ -1,0 +1,13 @@
+name: Action-Test
+
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  run-action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print issue details
+        run: echo "Issue opened"
