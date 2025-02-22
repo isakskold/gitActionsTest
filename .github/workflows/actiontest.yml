@@ -37,4 +37,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BRANCH_URL="https://github.com/${{ github.repository }}/tree/${{ env.branch-name }}"
-          gh issue comment ${{ github.event.issue.number }} --body "Branch created for this issue - `${{ env.branch-name }}`\n\nYou can view the branch here: [${{ env.branch-name }}](${BRANCH_URL})"
+          gh issue comment ${{ github.event.issue.number }} --body "Branch created for this issue - [${{ env.branch-name }}](${BRANCH_URL})"
