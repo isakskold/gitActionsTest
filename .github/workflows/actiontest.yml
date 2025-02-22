@@ -18,7 +18,7 @@ jobs:
           TITLE="${{ github.event.issue.title }}"
           ISSUE_NUMBER="${{ github.event.issue.number }}"
           SAFE_TITLE=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/-*$//')
-          BRANCH_NAME="${SAFE_TITLE}-${ISSUE_NUMBER}"
+          BRANCH_NAME="${ISSUE_NUMBER}-${SAFE_TITLE}"
           echo "branch-name=${BRANCH_NAME}" >> $GITHUB_ENV
 
       - name: Checkout repository
@@ -32,8 +32,9 @@ jobs:
           git checkout -b ${{ env.branch-name }} origin/main
           git push origin ${{ env.branch-name }}
 
-      - name: Comment on issue with branch name
+      - name: Comment on issue with branch name and link
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh issue comment ${{ github.event.issue.number }} --body "Branch `${{ env.branch-name }}` created for this issue."
+          BRANCH_URL="https://github.com/${{ github.repository }}/tree/${{ env.branch-name }}"
+          gh issue comment ${{ github.event.issue.number }} --body "Branch created for this issue - `${{ env.branch-name }}`\n\nYou can view the branch here: [${{ env.branch-name }}](${BRANCH_URL})"
