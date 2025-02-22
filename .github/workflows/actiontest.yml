@@ -1,4 +1,4 @@
-name: Action-Test
+name: Issue Branch Creator
 
 on:
   issues:
@@ -6,8 +6,29 @@ on:
       - opened
 
 jobs:
-  run-action:
+  create-branch:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Allows pushing new branches
+      issues: write    # Allows posting comments on issues
     steps:
-      - name: Print issue details
-        run: echo "Issue opened"
+      - name: Get issue details
+        id: issue
+        run: echo "branch-name=issue-${{ github.event.issue.number }}" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create branch
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git fetch origin main
+          git checkout -b ${{ env.branch-name }} origin/main
+          git push origin ${{ env.branch-name }}
+
+      - name: Comment on issue with branch name
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue comment ${{ github.event.issue.number }} --body "Branch `${{ env.branch-name }}` created for this issue."
