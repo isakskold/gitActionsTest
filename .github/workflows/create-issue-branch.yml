@@ -31,14 +31,14 @@ jobs:
           fi
 
       - name: Create Issue Branch
-        if: env.run_create_branch == 'true'
+        if: ${{ env.run_create_branch == 'true' }}
         id: create_branch
         uses: isakskold/create-issue-branch@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Comment with branch link
-        if: env.run_create_branch == 'true'
+        if: ${{ env.run_create_branch == 'true' }}
         run: |
           ISSUE_NUMBER=${{ github.event.issue.number }}
           BRANCH_NAME="${{ steps.create_branch.outputs.branch_name }}"  # Adjust if your action returns the branch name
