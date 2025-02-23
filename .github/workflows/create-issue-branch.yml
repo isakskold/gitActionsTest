@@ -1,8 +1,5 @@
-# Workflow creating an issue branch. Only runs in the "Create branch" project
-
 name: Issue branch workflow
 
-# Trigger when opening an issue
 on:
   issues:
     types: [opened]
@@ -32,6 +29,19 @@ jobs:
 
       - name: Create Issue Branch
         if: env.run_create_branch == 'true'
+        id: create_branch
         uses: isakskold/create-issue-branch@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment with branch link
+        if: env.run_create_branch == 'true'
+        run: |
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          BRANCH_NAME="${{ steps.create_branch.outputs.branch_name }}"  # Adjust if your action returns the branch name
+          COMMENT_BODY="A new branch has been created for this issue: [${BRANCH_NAME}](https://github.com/${{ github.repository }}/tree/${BRANCH_NAME})"
+          
+          # Post a comment on the issue with the link to the branch
+          curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -d '{"body": "'"${COMMENT_BODY}"'"}' \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER}}/comments"
