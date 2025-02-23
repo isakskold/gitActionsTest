@@ -15,10 +15,11 @@ jobs:
           PROJECT_NAME="Create branch"
 
           # Query GitHub GraphQL API for project data
-          RESPONSE=$(curl -s -X POST -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            --data '{"query": "query { repository(owner: \"${{ github.repository_owner }}\", name: \"${{ github.event.repository.name }}\") { issue(number: '$ISSUE_NUMBER') { projectItems(first: 10) { nodes { project { title } } } } } }"}' \
-            https://api.github.com/graphql)
+           RESPONSE=$(curl -s -X POST -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
+             -H "Content-Type: application/json" \
+             --data '{"query": "query { repository(owner: \"${{ github.repository_owner }}\", name: \"${{ github.event.repository.name }}\") { issue(number: '$ISSUE_NUMBER') { projectV2Items(first: 10) { nodes { project { title } } } } } }"}' \
+             https://api.github.com/graphql)
+
 
           # Debug response
           echo "GraphQL Response: $RESPONSE"
