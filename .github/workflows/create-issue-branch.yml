@@ -8,43 +8,13 @@ jobs:
   create_issue_branch_job:
     runs-on: ubuntu-latest
     steps:
-      - name: Check if issue is in "Create branch" project
-        id: check_project
-        run: |
-          ISSUE_NUMBER=${{ github.event.issue.number }}
-          PROJECT_NAME="Create branch"
-
-          # Query GitHub GraphQL API for project data
-          RESPONSE=$(curl -s -X POST -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            --data '{"query": "query { repository(owner: \"${{ github.repository_owner }}\", name: \"${{ github.event.repository.name }}\") { issue(number: '$ISSUE_NUMBER') { projectCards(first: 10) { nodes { project { name } } } } } }"}' \
-            https://api.github.com/graphql)
-
-
-
-          # Debug response
-          echo "GraphQL Response: $RESPONSE"
-
-          # Check if the issue is linked to the "Create branch" project
-          if echo "$RESPONSE" | grep -q "\"title\": \"$PROJECT_NAME\""; then
-            echo "Issue is in the '$PROJECT_NAME' project"
-            echo "run_create_branch=true" >> $GITHUB_ENV
-          else
-            echo "Issue is not in the '$PROJECT_NAME' project"
-            echo "run_create_branch=false" >> $GITHUB_ENV
-          fi
-
-
-
       - name: Create Issue Branch
-        if: ${{ env.run_create_branch == 'true' }}
         id: create_branch
         uses: isakskold/create-issue-branch@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Comment with branch link
-        if: ${{ env.run_create_branch == 'true' }}
         run: |
           ISSUE_NUMBER=${{ github.event.issue.number }}
           BRANCH_NAME="${{ steps.create_branch.outputs.branch_name }}"  # Adjust if your action returns the branch name
@@ -53,4 +23,4 @@ jobs:
           # Post a comment on the issue with the link to the branch
           curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -d '{"body": "'"${COMMENT_BODY}"'"}' \
-            "https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER}}/comments"
+            "https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER}/comments"
