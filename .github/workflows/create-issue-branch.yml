@@ -14,21 +14,24 @@ jobs:
           ISSUE_NUMBER=${{ github.event.issue.number }}
           PROJECT_NAME="Create branch"
 
-          # Get the issue's project cards
-          PROJECT_CARDS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER}/timeline")
+          # Query GitHub GraphQL API for project data
+          RESPONSE=$(curl -s -X POST -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data '{"query": "query { repository(owner: \"${{ github.repository_owner }}\", name: \"${{ github.event.repository.name }}\") { issue(number: '$ISSUE_NUMBER') { projectItems(first: 10) { nodes { project { title } } } } } }"}' \
+            https://api.github.com/graphql)
 
-          # Debug API response
-          echo "Response: $PROJECT_CARDS"
+          # Debug response
+          echo "GraphQL Response: $RESPONSE"
 
-          # Check if any project card is associated with the "Create branch" project
-          if echo "$PROJECT_CARDS" | grep -q "\"project_url\":.*\"$PROJECT_NAME\""; then
+          # Check if the issue is linked to the "Create branch" project
+          if echo "$RESPONSE" | grep -q "\"title\": \"$PROJECT_NAME\""; then
             echo "Issue is in the '$PROJECT_NAME' project"
             echo "run_create_branch=true" >> $GITHUB_ENV
           else
             echo "Issue is not in the '$PROJECT_NAME' project"
             echo "run_create_branch=false" >> $GITHUB_ENV
           fi
+
 
 
       - name: Create Issue Branch
