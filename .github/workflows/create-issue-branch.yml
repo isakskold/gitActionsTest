@@ -16,10 +16,10 @@ jobs:
           
           # Fetch the project cards associated with the issue using the correct API
           PROJECTS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER}}/events")
+            "https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER}/events")
           
           # Debug the response to see its structure
-          echo "$PROJECTS"
+          echo "Response: $PROJECTS"
           
           # Check if the issue is associated with the "Create branch" project
           if echo "$PROJECTS" | grep -q "\"name\": \"$PROJECT_NAME\""; then
