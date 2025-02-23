@@ -4,6 +4,10 @@ on:
   issues:
     types: [opened]
 
+permissions:
+  issues: write
+  contents: write
+
 jobs:
   create_issue_branch_job:
     runs-on: ubuntu-latest
@@ -17,10 +21,11 @@ jobs:
       - name: Comment with branch link
         run: |
           ISSUE_NUMBER=${{ github.event.issue.number }}
-          BRANCH_NAME="${{ steps.create_branch.outputs.branch_name }}"  # Adjust if your action returns the branch name
+          BRANCH_NAME="${{ steps.create_branch.outputs.branch_name }}"  
           COMMENT_BODY="A new branch has been created for this issue: [${BRANCH_NAME}](https://github.com/${{ github.repository }}/tree/${BRANCH_NAME})"
           
-          # Post a comment on the issue with the link to the branch
+          # Post a comment on the issue
           curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
             -d '{"body": "'"${COMMENT_BODY}"'"}' \
             "https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER}/comments"
