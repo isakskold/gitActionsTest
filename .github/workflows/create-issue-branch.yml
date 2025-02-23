@@ -20,7 +20,8 @@ jobs:
 
       - name: Debug all outputs
         run: |
-          echo "Outputs: ${{ steps.create_branch.outputs }}"
+          echo "Outputs: ${{ steps.create_branch.outputs | toJson }}"
+
 
       - name: Debug branch name
         run: |
