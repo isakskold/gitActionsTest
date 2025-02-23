@@ -14,12 +14,15 @@ jobs:
           ISSUE_NUMBER=${{ github.event.issue.number }}
           PROJECT_NAME="Create branch"
           
-          # Fetch the project cards associated with the issue
-          PROJECT_CARDS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          # Fetch the project cards associated with the issue using the correct API
+          PROJECTS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER}}/events")
           
+          # Debug the response to see its structure
+          echo "$PROJECTS"
+          
           # Check if the issue is associated with the "Create branch" project
-          if echo "$PROJECT_CARDS" | grep -q "\"project_card\": {.*\"project\": {\"name\": \"$PROJECT_NAME\"}"; then
+          if echo "$PROJECTS" | grep -q "\"name\": \"$PROJECT_NAME\""; then
             echo "Issue is in the '$PROJECT_NAME' project"
             echo "run_create_branch=true" >> $GITHUB_ENV
           else
